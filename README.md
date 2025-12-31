@@ -47,7 +47,7 @@ Make a poster for a jazz night called "Blue Moon" on Friday
 Portrait of a woman with freckles and green eyes, wearing headphones
 ```
 
-## What Makes It Good
+## Overview
 
 Nano Banana Pro is a reasoning-based model. It does best with natural language descriptions, not keyword soup. This skill handles the translation:
 
