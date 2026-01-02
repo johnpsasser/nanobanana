@@ -133,9 +133,14 @@ The script will:
    export GEMINI_API_KEY="your-api-key-here"
    ```
 
-2. Ensure Python 3 is installed with the `google-generativeai` package:
+2. Ensure Python 3 is installed with required packages:
    ```bash
-   pip install google-generativeai requests pillow
+   pip install -r ~/.claude/skills/nanobanana/requirements.txt
+   ```
+
+   Or install manually:
+   ```bash
+   pip install google-genai
    ```
 
 ## Error Handling

@@ -13,9 +13,47 @@ try:
     from google import genai
     from google.genai import types
 except ImportError:
-    print("ERROR: Required package 'google-genai' is not installed.")
-    print("Please install it with: pip install google-genai")
-    sys.exit(1)
+    print("Required package 'google-genai' is not installed.")
+    print("Attempting to install automatically...")
+    try:
+        import subprocess
+
+        # Try with --user flag first (works in externally managed environments)
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "--user", "google-genai"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print("Successfully installed google-genai!")
+        print("Please run the command again to use the newly installed package.")
+        sys.exit(0)
+    except subprocess.CalledProcessError as e:
+        # If --user fails, try with --break-system-packages
+        try:
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "install", "--break-system-packages", "google-genai"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            print("Successfully installed google-genai!")
+            print("Please run the command again to use the newly installed package.")
+            sys.exit(0)
+        except subprocess.CalledProcessError:
+            print(f"\nERROR: Failed to auto-install google-genai.")
+            print("\nPlease install manually with one of:")
+            print("  pip install --user google-genai")
+            print("  pip install --break-system-packages google-genai")
+            print("\nOr use a virtual environment:")
+            print("  python3 -m venv venv")
+            print("  source venv/bin/activate")
+            print("  pip install google-genai")
+            sys.exit(1)
+    except Exception as e:
+        print(f"\nERROR: Unexpected error during installation: {str(e)}")
+        print("\nPlease install manually with: pip install --user google-genai")
+        sys.exit(1)
 
 
 def validate_api_key():
