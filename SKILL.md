@@ -1,6 +1,10 @@
 ---
 name: nanobanana
-description: Generate photorealistic images with perfect text rendering using Nano Banana Pro (Gemini 3 Pro Image). Automatically enhances prompts for optimal results with this reasoning-based image model. Use when users request image generation, logos, infographics, posters, diagrams, or any visual content.
+description: Generate or edit photorealistic images with perfect text rendering using Nano Banana Pro (Gemini 3 Pro Image). Automatically enhances prompts for this reasoning-based model and supports aspect ratio, resolution, and reference-image editing. Use when users ask to create or edit images, logos, infographics, posters, diagrams, wallpapers, or any visual content.
+license: MIT
+metadata:
+  author: sasser
+  version: 1.0.0
 allowed-tools: Bash
 ---
 
@@ -96,14 +100,51 @@ Use this modular structure (plain text, no markdown):
 After creating the enhanced prompt, generate the image using:
 
 ```bash
+python "$CLAUDE_PLUGIN_ROOT/scripts/generate.py" "ENHANCED_PROMPT_HERE"
+```
+
+If `$CLAUDE_PLUGIN_ROOT` is not set (standalone skill install), use the absolute path:
+
+```bash
 python ~/.claude/skills/nanobanana/scripts/generate.py "ENHANCED_PROMPT_HERE"
 ```
 
 The script will:
-1. Validate the GEMINI_API_KEY environment variable exists
+1. Validate the GEMINI_API_KEY environment variable exists (auto-installing the
+   `google-genai` dependency on first run if needed)
 2. Call the Gemini API with the enhanced prompt
-3. Download the generated image to the current directory
-4. Return the filename of the saved image
+3. Save the generated image to the current directory
+4. Print the filename of the saved image
+
+#### Optional flags
+
+Use these when the request implies a specific framing, quality, or an edit of an
+existing image:
+
+- `--aspect-ratio <ratio>` — choose framing instead of relying on the prompt
+  alone. Supported: `1:1 2:3 3:2 3:4 4:3 4:5 5:4 9:16 16:9 21:9`.
+  Pick `9:16` for phone wallpapers/stories, `16:9` or `21:9` for banners/wide
+  shots, `1:1` for avatars/icons, `4:5` for portrait social posts.
+- `--resolution <1K|2K|4K>` — output resolution. Default is `1K`. Use `2K`/`4K`
+  for posters, print, or detailed infographics with fine text.
+- `--image <path>` — provide a reference/input image to **edit or combine**.
+  Repeatable: pass `--image` multiple times to merge subjects, keep a character
+  consistent, or transfer a style. The prompt then describes the desired change.
+- `--fast` — use the faster, cheaper Flash model for quick drafts/iteration.
+  Default (omit it) uses Nano Banana Pro for best text and fidelity.
+
+**Examples:**
+
+```bash
+# A 9:16 phone wallpaper at 2K
+python "$CLAUDE_PLUGIN_ROOT/scripts/generate.py" "ENHANCED_PROMPT" --aspect-ratio 9:16 --resolution 2K
+
+# Edit an existing photo
+python "$CLAUDE_PLUGIN_ROOT/scripts/generate.py" "Replace the background with a snowy mountain range at golden hour, keep the subject unchanged" --image portrait.png
+
+# Combine two reference images
+python "$CLAUDE_PLUGIN_ROOT/scripts/generate.py" "Put the product from the first image onto the marble countertop from the second image, studio lighting" --image product.png --image kitchen.png
+```
 
 ## Examples
 
@@ -132,15 +173,13 @@ The script will:
    ```bash
    export GEMINI_API_KEY="your-api-key-here"
    ```
+   Get a key at https://aistudio.google.com/apikey
 
-2. Ensure Python 3 is installed with required packages:
+2. Python 3 is required. The script auto-installs its dependencies
+   (`google-genai`, and `pillow` when editing reference images) on first run.
+   To install them ahead of time:
    ```bash
-   pip install -r ~/.claude/skills/nanobanana/requirements.txt
-   ```
-
-   Or install manually:
-   ```bash
-   pip install google-genai
+   pip install -r "$CLAUDE_PLUGIN_ROOT/requirements.txt"
    ```
 
 ## Error Handling
